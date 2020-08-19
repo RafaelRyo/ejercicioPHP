@@ -20,6 +20,7 @@
       $this->webtitle = "Without title";
       $this->item = $this->getParameter('item', 'hamburguesa');
       $this->subitem = $this->getParameter('subitem');
+      $this->subitem2 = $this->getParameter('subitem2');
       $this->dircontents = "contents/";
     }
 
@@ -41,25 +42,6 @@
       $this->submenu2 = $submenu2;
     }
 
-    /*
-      URL AMIGABLE
-
-      Si no és friendly les adreçes son així: /index.php?item=alfa&subitem=beta
-      i si és friendly les adreçes son així: /alfa_beta.html
-
-      Si es friendly llavors en el fitxer ".htaccess" incloure el següent:
-
-        Options +Indexes
-        Options +FollowSymlinks
-        RewriteEngine on
-        RewriteBase /dir_web
-        RewriteRule ^([^/]+)_([^/]+).html$ index.php?item=$1&subitem=$2 [NC,L]
-        RewriteRule ^([^/]+).html$         index.php?item=$1            [NC,L]
-
-      Cal activar el mòdul REWRITE de l'Apache:
-
-        a2enmod rewrite
-    */
     public function setFriendly($friendly) {
       $this->friendly = $friendly;
     }
@@ -88,6 +70,7 @@
       $submenu2  = $this->submenu2;
       $item     = $this->item;
       $subitem  = $this->subitem;
+      $subitem2  = $this->subitem2;
       $webtitle = $this->webtitle;
 
       $title = '';
@@ -106,6 +89,7 @@
     public function getClassBody() {
       $item     = $this->item;
       $subitem  = $this->subitem;
+      $subitem2  = $this->subitem2;
 
       $classe = "$item $subitem";
       return $classe;
@@ -134,7 +118,7 @@
               foreach ($submenu2[$subkey] as $sub2key=>$sub2value) { //e) recorre sub  menu2
                 
                 $subclass2 = ($sub2key == $subitem2)? ' class="subcurrent"' : '';
-                $href = $this->getHRef($key, $subkey, $sub2key);               
+                $href = $this->getHRef($key, $subkey, $sub2key);              
                 $sublist2 .= "\t\t<li id=\"$sub2key\"$subclass2>".
                   "<a href=\"$href\">$sub2value</a></li>\n";
               }
@@ -170,44 +154,17 @@
     public function writePageContent($dir=null, $warnings=true) {
       $item     = $this->item;
       $subitem  = $this->subitem;
+      $subitem2  = $this->subitem2;
       $dircontents = $dir===null? $this->dircontents: $dir;
 
       if (empty($subitem)) $file = $dircontents.$item.".php";
-      else $file = $dircontents.$item."_".$subitem.".php";
+      else {
+        if (empty($subitem2)) $file = $dircontents.$item."_".$subitem.".php";
+        else $file = $dircontents.$item."_".$subitem."_".$subitem2.".php";
+      }
 
       if (file_exists($file)) include $file;
       else if ($warnings) echo '<p class="error">Missing file: <code>'.$file.'</code></p>';
-    }
-
-    /*
-      Obté les molles de pa; la ruta d'on estem
-    */
-    public function getBreadcrumbs($separator=' &gt; ')
-    {
-      $menu     = $this->menu;
-      $submenu  = $this->submenu;
-      $item     = $this->item;
-      $subitem  = $this->subitem;
-      $list = array();
-
-      if ($subitem != '') {
-        $list[] = $this->getTitle($item, $subitem);
-      }
-      if ($item != 'start') {
-        if (count($list) == 0) $list[] = $this->getTitle($item);
-        else $list[] = $this->getTagA($item);
-      }
-      if (count($list) == 0) $list[] = $this->getTitle('start');
-      else $list[] = $this->getTagA('start');
-
-      return implode($separator, array_reverse($list));
-    }
-
-
-    private function getTagA($item, $subitem='') {
-      $href = $this->getHRef($item, $subitem);
-      $title = $this->getTitle($item, $subitem);
-      return "<a href=\"$href\">$title</a>";
     }
     
     private function getHRef($item, $subitem='', $subitem2='') {
@@ -225,17 +182,6 @@
           if ($subitem2 == '') return "?item=$item&subitem=$subitem";
           else {return "?item=$item&subitem=$subitem&subitem2=$subitem2";}
         }
-      }
-    }
-    
-    private function getTitle($item, $subitem='') {
-      if ($subitem == '') {
-        if (isset($this->menu[$item])) return $this->menu[$item];
-        else return $item;
-      }
-      else {
-        if (isset($this->submenu[$item][$subitem])) return $this->submenu[$item][$subitem];
-        else return $subitem;
       }
     }
 

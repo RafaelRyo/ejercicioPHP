@@ -37,6 +37,7 @@
             position:absolute;
             background-color:white;
             border:0px solid black;
+            font-size: 15px;
             }
             #menu ul ol { /* Oculta los submenús */
             display:none;
@@ -44,6 +45,7 @@
             left: 100px; 
             background-color:white;
             border:0px solid black;
+            font-size: 15px;
             }
             #menu > ul > li:hover ul { /* Mostrar submenú */
                 display:block;
@@ -99,7 +101,6 @@
                 font-weight: 600;
                 letter-spacing: .1rem;
                 text-decoration: none;
-                text-transform: uppercase;
             }
 
             .m-b-md {
@@ -122,7 +123,7 @@
                         <?php echo $plantilla->getMenu(); ?>
                     </div>
 
-                    <div id="contenido">
+                    <div id="contenido" class="mt-10">
                         <?php $plantilla->writePageContent(); ?>
                     </div>
 
