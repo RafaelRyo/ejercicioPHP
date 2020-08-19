@@ -29,15 +29,30 @@
             #menu > ul > li  { /* Menú principal horizontal */
             display:inline-block;
             }
+            a:hover {
+                background-color: #BBA9BB;
+            }
             #menu ul ul { /* Oculta los submenús */
             display:none;
             position:absolute;
             background-color:white;
-            border:1px solid black;
+            border:0px solid black;
+            }
+            #menu ul ol { /* Oculta los submenús */
+            display:none;
+            position:relative;
+            left: 100px; 
+            background-color:white;
+            border:0px solid black;
             }
             #menu > ul > li:hover ul { /* Mostrar submenú */
-            display:block;
+                display:block;
             }
+            #menu > ul ul > li:hover ol { /* Mostrar submenú */
+                display:block;
+            }
+
+
         
             /*iniciales*/
             html, body {

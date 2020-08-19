@@ -9,6 +9,7 @@
     private $webtitle;
     private $item;
     private $subitem;
+    private $subitem2;
     private $dircontents;
 
     public function __construct() {
@@ -34,41 +35,6 @@
       return $value;
     }
 
-    /*
-      MENU i SUBMENU
-
-      Exemple:
-
-          $menu = array(
-            'start'     => "Inici",
-            'metro'     => "Metro",
-            'bici'      => "Bicicleta",
-            'bus'       => "Autobús",
-            'tren'      => "Tren",
-            'contacte2' => "Contacte",
-          );
-          $submenu = array();
-          $submenu['metro'] = array(
-            'blau'     => "Línia blava",
-            'groc'     => "Línia groga",
-            'verd'     => "Línia verda",
-            'vermell'  => "Línia vermella",
-          );
-          $submenu['bici'] = array(
-            'bicing'   => "Bicing",
-            'bicibox'  => "Bicibox",
-          );
-          $submenu['bus'] = array(
-            'linia1'   => "Línia 1",
-            'linia2'   => "Línia 2",
-            'linia3'   => "Línia 3",
-          );
-          $submenu['tren'] = array(
-            'rodalies' => "Rodalies",
-            'ave'      => "Ave",
-            'ffcc'     => "FF.CC.",
-          );
-    */
     public function setMenu ($menu, $submenu, $submenu2) {
       $this->menu = $menu;
       $this->submenu = $submenu;
@@ -152,29 +118,49 @@
     {
       $menu     = $this->menu;
       $submenu  = $this->submenu;
+      $submenu2  = $this->submenu2;
       $item     = $this->item;
       $subitem  = $this->subitem;
+      $subitem2  = $this->subitem2;
 
       $list = '';
-      foreach($menu as $key=>$value) {
-        if (isset($submenu[$key])) {
+      foreach($menu as $key=>$value) { // a) recorre menu principal
+        if (isset($submenu[$key])) {    //b) Pregunta si menu principal tiene submenu
           $sublist = '';
-          foreach ($submenu[$key] as $subkey=>$subvalue) {
+          foreach ($submenu[$key] as $subkey=>$subvalue) { //c) recorre sub  menu
+            
+            if (isset($submenu2[$subkey])) {    //d) Pregunta si submenu tiene submenu2
+              $sublist2 = '';
+              foreach ($submenu2[$subkey] as $sub2key=>$sub2value) { //e) recorre sub  menu2
+                
+                $subclass2 = ($sub2key == $subitem2)? ' class="subcurrent"' : '';
+                $href = $this->getHRef($key, $subkey, $sub2key);               
+                $sublist2 .= "\t\t<li id=\"$sub2key\"$subclass2>".
+                  "<a href=\"$href\">$sub2value</a></li>\n";
+              }
+              $sublist2 = "\n\t\t<ol>\n$sublist2\t\t</ol>\n\t";
+            }
+            else {  //else d)
+              $sublist2 = '';
+            } //end d)
+                      
             $subclass = ($subkey == $subitem)? ' class="subcurrent"' : '';
             $href = $this->getHRef($key, $subkey);
             $sublist .= "\t\t<li id=\"$subkey\"$subclass>".
-              "<a href=\"$href\">$subvalue</a></li>\n";
-          }
+              "<a href=\"$href\">$subvalue</a>$sublist2</li>\n";
+                   
+            }//end for c)
           $sublist = "\n\t\t<ul>\n$sublist\t\t</ul>\n\t";
         }
         else {
           $sublist = '';
-        }
+        } //end b)
+        
         $class = ($key == $item)? ' class="current"' : '';
         $href = $this->getHRef($key);
         $list .= "\t<li id=\"$key\"$class>".
           "<a href=\"$href\">$value</a>$sublist</li>\n";
-      }
+      } //end a)
       return "\n\t<ul>\n$list\t</ul>\n";
     }
 
@@ -223,16 +209,25 @@
       $title = $this->getTitle($item, $subitem);
       return "<a href=\"$href\">$title</a>";
     }
-    private function getHRef($item, $subitem='') {
+    
+    private function getHRef($item, $subitem='', $subitem2='') {
       if ($this->friendly) {
         if ($subitem == '') return "$item.html";
-        else return $item."_".$subitem.".html";
+        else 
+        {
+          if ($subitem2 == '') return $item."_".$subitem.".html";
+          else return $item."_".$subitem."_".$subitem2.".html";
+        }
       }
       else {
         if ($subitem == '') return "?item=$item";
-        else return "?item=$item&subitem=$subitem";
+        else {
+          if ($subitem2 == '') return "?item=$item&subitem=$subitem";
+          else {return "?item=$item&subitem=$subitem&subitem2=$subitem2";}
+        }
       }
     }
+    
     private function getTitle($item, $subitem='') {
       if ($subitem == '') {
         if (isset($this->menu[$item])) return $this->menu[$item];
